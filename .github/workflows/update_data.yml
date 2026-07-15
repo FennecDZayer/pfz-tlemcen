@@ -1,0 +1,32 @@
+name: Daily Fishery Data Update
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests numpy pandas
+
+      - name: Run Data Fetch Script
+        run: python pfz_algeria.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name 'GitHub Action Bot'
+          git config --global user.email 'action@github.com'
+          git add data.json
+          git commit -m "تحديث يومي لبيانات الصيد" || exit 0
+          git push
